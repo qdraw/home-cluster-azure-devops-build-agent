@@ -22,6 +22,10 @@ if [ -n "${AZP_WORK}" ]; then
   mkdir -p "${AZP_WORK}"
 fi
 
+## SSH trickery
+bash sshsetup.sh
+## END ssh trickery
+
 cleanup() {
   trap "" EXIT
 

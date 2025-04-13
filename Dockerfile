@@ -9,6 +9,7 @@ RUN apt install -y curl git jq libicu74 wget openssh-client
 WORKDIR /azp/
 
 COPY ./start.sh ./
+COPY ./sshsetup.sh ./
 RUN chmod +x ./start.sh
 
 RUN if id -u 1000 >/dev/null 2>&1; then userdel -r $(getent passwd 1000 | cut -d: -f1); fi
