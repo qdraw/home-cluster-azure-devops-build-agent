@@ -50,10 +50,23 @@ export VSO_AGENT_IGNORE="AZP_TOKEN,AZP_TOKEN_FILE"
 
 print_header "1. Determining matching Azure Pipelines agent..."
 
+ARCH=$(uname -m)
+case "${ARCH}" in
+  "x86_64") PLATFORM="linux-x64" ;;
+  "aarch64") PLATFORM="linux-arm64" ;;
+  "armv7l") PLATFORM="linux-arm" ;;
+  "armv6l") PLATFORM="linux-arm" ;;
+  "i386" | "i686") PLATFORM="linux-x86" ;;
+  *)
+    echo 1>&2 "error: unsupported architecture: ${ARCH}"
+    exit 1
+    ;;
+esac
+
 AZP_AGENT_PACKAGES=$(curl -LsS \
     -u user:$(cat "${AZP_TOKEN_FILE}") \
     -H "Accept:application/json;" \
-    "${AZP_URL}/_apis/distributedtask/packages/agent?platform=${TARGETARCH}&top=1")
+    "${AZP_URL}/_apis/distributedtask/packages/agent?platform=${PLATFORM}&top=1")
 
 AZP_AGENT_PACKAGE_LATEST_URL=$(echo "${AZP_AGENT_PACKAGES}" | jq -r ".value[0].downloadUrl")
 
