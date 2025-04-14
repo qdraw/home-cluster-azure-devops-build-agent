@@ -3,8 +3,7 @@ FROM ubuntu:24.04
 RUN apt update
 RUN apt upgrade -y
 # RUN apt search libicu && exit 1
-RUN apt install -y curl git jq libicu74 wget openssh-client
-
+RUN apt install -y curl git jq libicu74 wget openssh-client zip rsync rclone
 
 WORKDIR /azp/
 
@@ -29,6 +28,8 @@ RUN echo 'export DOTNET_ROOT="$HOME/.dotnet"' >> /home/agent/.bashrc && \
     echo 'export PATH="$PATH:$HOME/.dotnet:$HOME/.dotnet/tools"' >> /home/agent/.bashrc && \
     echo 'export NUGET_XMLDOC_MODE=skip' >> /home/agent/.bashrc && \
     echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> /home/agent/.bashrc
+
+RUN dotnet tool install --global PowerShell
 
 # Another option is to run the agent as root.
 # ENV AGENT_ALLOW_RUNASROOT="true"
