@@ -90,6 +90,9 @@ trap "cleanup; exit 0" EXIT
 trap "cleanup; exit 130" INT
 trap "cleanup; exit 143" TERM
 
+print_header "view help"
+./config.sh --help
+
 print_header "3. Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
