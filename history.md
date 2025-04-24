@@ -3,6 +3,8 @@ Remove
   - Revoke credentials from repo
 Changed:
   - /mnt/secrets location
+Added
+  - add python and ansible
 
 # v0.0.4
 Added:
