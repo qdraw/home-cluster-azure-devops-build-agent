@@ -9,20 +9,34 @@ for secrets_dir in /mnt/host-secrets /mnt/qdraw-ssh-secrets; do
     
     mkdir -p ~/.ssh
 
-    # Define an array of file paths and their destinations
-    for file in privateSshKey:id_rsa publicSshKey:id_rsa.pub sshConfig:config; do
-      src="$secrets_dir/$(echo $file | cut -d: -f1)"
-      dest="$HOME/.ssh/$(echo $file | cut -d: -f2)"
+    # if secrets_dir contains qdraw then use a different name
+    if [[ "$secrets_dir" == *"qdraw"* ]]; then
+      ssh_key_name="qdrawnl"
+    else
+      ssh_key_name="id_rsa"
+    fi
 
-      if [ -f "$src" ]; then
-        cp "$src" "$dest"
-        case "$dest" in
-          *.pub) chmod 644 "$dest" ;; # Public key
-          config) chmod 644 "$dest" ;; # SSH config
-          *) chmod 600 "$dest" ;; # Private key
-        esac
+    if [ -f "$secrets_dir/privateSshKey" ]; then
+      cp $secrets_dir/privateSshKey ~/.ssh/$ssh_key_name
+      chmod 600 ~/.ssh/$ssh_key_name
+    fi
+
+    if [ -f "$secrets_dir/publicSshKey" ]; then
+      cp $secrets_dir/publicSshKey ~/.ssh/$ssh_key_name.pub
+      chmod 644 ~/.ssh/$ssh_key_name.pub
+    fi
+
+    # Merge sshConfig into ~/.ssh/config
+    if [ -f "$secrets_dir/sshConfig" ]; then
+      if [ -f ~/.ssh/config ]; then
+        echo "Merging $secrets_dir/sshConfig into ~/.ssh/config..."
+        cat "$secrets_dir/sshConfig" >> ~/.ssh/config
+      else
+        echo "Copying $secrets_dir/sshConfig to ~/.ssh/config..."
+        cp "$secrets_dir/sshConfig" ~/.ssh/config
       fi
-    done
+      chmod 644 ~/.ssh/config
+    fi
 
     echo "SSH configuration set up successfully from $secrets_dir."
   else
