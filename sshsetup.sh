@@ -1,26 +1,31 @@
-#!/bin/bash
-# Check if /mnt/secrets/ exists and contains the required files
+#!/bin/sh
+# Check if the directories exist and contain the required files
 
-if [ -d "/mnt/secrets/" ]; then
-  echo "Found /mnt/secrets/. Setting up SSH configuration..."
-  
-  mkdir -p ~/.ssh
-  if [ -f "/mnt/secrets/privateSshKey" ]; then
-    cp /mnt/secrets/privateSshKey ~/.ssh/id_rsa
-    chmod 600 ~/.ssh/id_rsa
+# its one of both
+
+for secrets_dir in /mnt/host-secrets /mnt/qdraw-ssh-secrets; do
+  if [ -d "$secrets_dir" ]; then
+    echo "Found $secrets_dir. Setting up SSH configuration..."
+    
+    mkdir -p ~/.ssh
+
+    # Define an array of file paths and their destinations
+    for file in privateSshKey:id_rsa publicSshKey:id_rsa.pub sshConfig:config; do
+      src="$secrets_dir/$(echo $file | cut -d: -f1)"
+      dest="$HOME/.ssh/$(echo $file | cut -d: -f2)"
+
+      if [ -f "$src" ]; then
+        cp "$src" "$dest"
+        case "$dest" in
+          *.pub) chmod 644 "$dest" ;; # Public key
+          config) chmod 644 "$dest" ;; # SSH config
+          *) chmod 600 "$dest" ;; # Private key
+        esac
+      fi
+    done
+
+    echo "SSH configuration set up successfully from $secrets_dir."
+  else
+    echo "Directory $secrets_dir not found. Skipping."
   fi
-
-  if [ -f "/mnt/secrets/publicSshKey" ]; then
-    cp /mnt/secrets/publicSshKey ~/.ssh/id_rsa.pub
-    chmod 644 ~/.ssh/id_rsa.pub
-  fi
-
-  if [ -f "/mnt/secrets/sshConfig" ]; then
-    cp /mnt/secrets/sshConfig ~/.ssh/config
-    chmod 644 ~/.ssh/config
-  fi
-
-  echo "SSH configuration set up successfully."
-else
-  echo "No /mnt/secrets/ directory found. Skipping SSH setup."
-fi
+done
