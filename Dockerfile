@@ -6,7 +6,7 @@ ARG NVM_VERSION=0.40.2
 RUN apt update
 RUN apt upgrade -y
 # RUN apt search libicu && exit 1
-RUN apt install -y curl git jq libicu74 wget openssh-client zip rsync rclone
+RUN apt install -y curl git jq libicu74 wget openssh-client zip rsync rclone python3 python3-pip python3-venv ansible
 
 WORKDIR /azp/
 
